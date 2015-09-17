@@ -6,6 +6,7 @@ import logging
 from collections import OrderedDict
 
 import geocoder
+from peewee import DoesNotExist
 from us import states
 from database import db, Location
 
@@ -77,6 +78,15 @@ def build_search(state, place):
         return state.abbr, place + ', ' + state.abbr.lower()
 
 
+def check_if_exists(location):
+    """Check if location already exists in database."""
+    try:
+        Location.select(Location.id).where(Location.location == location).get()
+        return True
+    except DoesNotExist:
+        return False
+
+
 def main(infile, outfile='locs.db', provider='google', wait=0.1):
     db.init(outfile)
     db.create_table(Location, safe=True)
@@ -86,6 +96,11 @@ def main(infile, outfile='locs.db', provider='google', wait=0.1):
     for search in rdr:
         state, place = search['state'], search['place']
         state, location = build_search(state, place)
+
+        if check_if_exists(location):
+            logging.info('Already in database: {0}'.format(location))
+            continue
+
         try:
             loc = lookup(location, provider)
             logging.info('Found result for {0}'.format(location))
