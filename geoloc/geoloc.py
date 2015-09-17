@@ -124,6 +124,8 @@ if __name__ == "__main__":
     argp.add_argument('outfile', nargs='?', default='locs.db',
                       help='Output database')
     argp.add_argument('-v', '--verbose', action='store_true', help='Logging on')
+    argp.add_argument('-w', '--wait', type=float, default=0.1,
+                      help='Wait (in seconds) between requests to provider')
     argp.add_argument('-p', '--provider', default='google', help='Use provider')
 
     opts = argp.parse_args()
@@ -133,4 +135,6 @@ if __name__ == "__main__":
             format='%(asctime)s|%(levelname)s|%(name)s| %(message)s'
         )
         logging.getLogger('requests').setLevel(logging.WARNING)
-    main(opts.infile, opts.outfile, opts.provider)
+
+    wait = max(0, opts.wait)  # ignore negative wait times
+    main(opts.infile, opts.outfile, opts.provider, wait)
