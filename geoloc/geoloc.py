@@ -20,6 +20,7 @@ PROVIDERS = OrderedDict([  # services to use, in default priority
     ('here', geocoder.here),
     ('arcgis', geocoder.arcgis)
 ])
+NO_RESULTS = frozenset(['No requests', 'No Geometry', 'ZERO_RESULTS'])
 
 
 class NoResultError(Exception):
@@ -53,7 +54,7 @@ def lookup(location_name, geo_service='google'):
     loc = func(location_name)
     if loc.status == 'OK':
         return loc
-    elif 'No results' in loc.status or 'No Geometry' in loc.status:
+    elif loc.status in NO_RESULTS:
         raise NoResultError('No result from server')
     else:
         raise Exception(loc.status)
