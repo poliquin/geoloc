@@ -31,7 +31,7 @@ class JSONField(TextField):
 
 class Location(BaseModel):
     location = CharField()
-    quality = CharField()
+    quality = CharField(null=True)
     state = CharField(null=True)
     city = CharField(null=True)
     county = CharField(null=True)
@@ -40,7 +40,7 @@ class Location(BaseModel):
     lat = DecimalField(null=True, max_digits=12, decimal_places=7)
     lng = DecimalField(null=True, max_digits=12, decimal_places=7)
     accuracy = CharField(null=True)
-    confidence = IntegerField()
+    confidence = IntegerField(null=True)
 
     address = TextField(null=True)
     neighborhood = TextField(null=True)
