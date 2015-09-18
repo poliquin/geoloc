@@ -21,9 +21,14 @@ PROVIDERS = OrderedDict([  # services to use, in default priority
     ('arcgis', geocoder.arcgis)
 ])
 NO_RESULTS = frozenset(['No requests', 'No Geometry', 'ZERO_RESULTS'])
+OVER_LIMIT = frozenset(['OVER_QUERY_LIMIT'])
 
 
 class NoResultError(Exception):
+    pass
+
+
+class QueryLimitError(Exception):
     pass
 
 
@@ -56,6 +61,8 @@ def lookup(location_name, geo_service='google'):
         return loc
     elif loc.status in NO_RESULTS:
         raise NoResultError('No result from server')
+    elif loc.stats in OVER_LIMIT:
+        raise QueryLimitError('Over query limit')
     else:
         raise Exception(loc.status)
 
@@ -108,6 +115,9 @@ def main(infile, outfile='locs.db', provider='google', wait=0.1):
         except NoResultError:
             logging.warning('No result for {0}'.format(location))
             continue
+        except QueryLimitError:
+            logging.critial('Over query limit!')
+            break
         except Exception as err:
             logging.error(err)
             continue
