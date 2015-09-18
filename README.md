@@ -10,6 +10,11 @@ following:
 3. Spacing requests to geocoding service for new locations
 4. Saving responses to SQLite
 
+## Requirements
+
+    pip install geocoder
+    pip install us
+
 ## Running the Program
 
 The input file should be CSV with `state` and `place` columns. It should
