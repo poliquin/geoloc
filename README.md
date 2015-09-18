@@ -14,6 +14,7 @@ following:
 
     pip install geocoder
     pip install us
+    pip install peewee
 
 ## Running the Program
 
