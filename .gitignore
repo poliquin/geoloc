@@ -6,3 +6,6 @@
 .ropeproject
 *.db
 *.csv
+nohup.out
+*.log
+
