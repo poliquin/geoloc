@@ -1,5 +1,5 @@
-Convert Location Names to Latitude/Longitude
-============================================
+Geocode Location Names
+======================
 
 Uses the Python `geocoder` library to geocode a set of locations and
 saves search results to a SQLite database. The script handles the
