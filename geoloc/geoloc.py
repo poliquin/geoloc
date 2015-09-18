@@ -108,6 +108,9 @@ def main(infile, outfile='locs.db', provider='google', wait=0.1):
         except NoResultError:
             logging.warning('No result for {0}'.format(location))
             continue
+        except Exception as err:
+            logging.error(err)
+            continue
         else:
             if state is not None and loc.state != state:
                 # search did not return result in correct state
