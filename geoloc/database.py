@@ -30,7 +30,7 @@ class JSONField(TextField):
 
 
 class Location(BaseModel):
-    location = CharField()
+    location = CharField(index=True)
     quality = CharField(null=True)
     state = CharField(null=True)
     city = CharField(null=True)
