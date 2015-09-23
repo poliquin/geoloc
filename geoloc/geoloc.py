@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import csv
+import re
 import time
 import logging
 from collections import OrderedDict
@@ -72,6 +73,8 @@ def build_search(state, place):
     state, place = state.strip(), place.strip().lower()
     if state == '':
         return None, place
+
+    place = re.sub(r'^close to\s*', '', place)
 
     state = states.lookup(state.strip())
     if place.endswith(state.name.lower()):
