@@ -144,6 +144,7 @@ if __name__ == "__main__":
     argp.add_argument('-w', '--wait', type=float, default=0.1,
                       help='Wait (in seconds) between requests to provider')
     argp.add_argument('-p', '--provider', default='google', help='Use provider')
+    argp.add_argument('-d', '--dev', action='store_true', help='Development')
 
     opts = argp.parse_args()
     if opts.verbose:
@@ -153,5 +154,9 @@ if __name__ == "__main__":
         )
         logging.getLogger('requests').setLevel(logging.WARNING)
 
-    wait = max(0, opts.wait)  # ignore negative wait times
-    main(opts.infile, opts.outfile, opts.provider, wait)
+    if opts.dev:
+        db.init(opts.outfile)
+        db.create_table(Location, safe=True)
+    else:
+        wait = max(0, opts.wait)  # ignore negative wait times
+        main(opts.infile, opts.outfile, opts.provider, wait)
