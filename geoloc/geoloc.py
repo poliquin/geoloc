@@ -109,7 +109,7 @@ def main(infile, outfile='locs.db', provider='google', wait=0.1):
         state, location = build_search(state, place)
 
         if check_if_exists(location):
-            logging.info('Already in database: {0}'.format(location))
+            logging.debug('Already in database: {0}'.format(location))
             continue
 
         try:
