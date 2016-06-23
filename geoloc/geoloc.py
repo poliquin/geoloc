@@ -98,12 +98,13 @@ def check_if_exists(location):
         return False
 
 
-def main(infile, outfile='locs.db', provider='google', wait=0.1):
+def main(infile, outfile='locs.db', delimit=',', provider='google', wait=0.1):
+    """Run the geocoder."""
     db.init(outfile)
     db.create_table(Location, safe=True)
 
     fh = open(infile, 'r')
-    rdr = csv.DictReader(fh)
+    rdr = csv.DictReader(fh, delimiter=delimit)
     for search in rdr:
         state, place = search['state'], search['place']
         state, location = build_search(state, place)
@@ -140,10 +141,11 @@ if __name__ == "__main__":
     argp.add_argument('infile', help='Input source')
     argp.add_argument('outfile', nargs='?', default='locs.db',
                       help='Output database')
-    argp.add_argument('-v', '--verbose', action='store_true', help='Logging on')
+    argp.add_argument('-t', '--tabs', action='store_true', help='Tab delimit')
+    argp.add_argument('-v', '--verbose', action='store_true', help='Log on')
     argp.add_argument('-w', '--wait', type=float, default=0.1,
                       help='Wait (in seconds) between requests to provider')
-    argp.add_argument('-p', '--provider', default='google', help='Use provider')
+    argp.add_argument('-p', '--provider', default='google', help='Provider')
     argp.add_argument('-d', '--dev', action='store_true', help='Development')
 
     opts = argp.parse_args()
@@ -159,4 +161,5 @@ if __name__ == "__main__":
         db.create_table(Location, safe=True)
     else:
         wait = max(0, opts.wait)  # ignore negative wait times
-        main(opts.infile, opts.outfile, opts.provider, wait)
+        delimit = '\t' if opts.tabs else ','
+        main(opts.infile, opts.outfile, delimit, opts.provider, wait)
