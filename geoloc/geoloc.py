@@ -9,7 +9,7 @@ from collections import OrderedDict
 import geocoder
 from peewee import DoesNotExist
 from us import states
-from database import db, Location
+from database import start_database, config_ssl, Location
 
 
 PROVIDERS = OrderedDict([  # services to use, in default priority
@@ -98,14 +98,12 @@ def check_if_exists(location):
         return False
 
 
-def main(infile, outfile='locs.db', build=False, delim=',',
-         provider='google', wait=0.1):
+def main(infile, db, build=False, delim=',', provider='google', wait=0.1):
     """Run the geocoder."""
-    db.init(outfile)
-    db.create_table(Location, safe=True)
 
     fh = open(infile, 'r')
     rdr = csv.DictReader(fh, delimiter=delim)
+
     for search in rdr:
         if build:
             state, place = search['state'], search['place']
@@ -136,14 +134,25 @@ def main(infile, outfile='locs.db', build=False, delim=',',
             save(loc)
         time.sleep(wait)
 
-    db.close()
+
+def open_database(dbname, host='127.0.0.1', user='root', pwd=None, ssl=None):
+    """Create connection to database."""
+
+    return start_database(
+        dbname,
+        sqlite='.' in dbname or host is None,
+        host=host,
+        user=user,
+        passwd=pwd,
+        ssl=config_ssl(ssl) if ssl is not None else None
+    )
 
 
 if __name__ == "__main__":
     import argparse
     argp = argparse.ArgumentParser(description='Geocode locations')
     argp.add_argument('infile', help='Input source')
-    argp.add_argument('outfile', nargs='?', default='locs.db',
+    argp.add_argument('dbname', nargs='?', default='locs.db',
                       help='Output database')
     argp.add_argument('-t', '--tabs', action='store_true', help='Tab delimit')
     argp.add_argument('-v', '--verbose', action='store_true', help='Log on')
@@ -153,6 +162,10 @@ if __name__ == "__main__":
     argp.add_argument('-d', '--dev', action='store_true', help='Development')
     argp.add_argument('-b', '--build', action='store_true',
                       help='Create search from state and place columns')
+    argp.add_argument('--hst', default=None, help='MySQL host')
+    argp.add_argument('--usr', default=None, help='MySQL user')
+    argp.add_argument('--pwd', default=None, help='MySQL pass')
+    argp.add_argument('--ssl', default='/etc/mysql-ssl', help='SSL certs')
 
     opts = argp.parse_args()
     if opts.verbose:
@@ -162,10 +175,10 @@ if __name__ == "__main__":
         )
         logging.getLogger('requests').setLevel(logging.WARNING)
 
-    if opts.dev:
-        db.init(opts.outfile)
-        db.create_table(Location, safe=True)
-    else:
+    db = open_database(opts.dbname, opts.hst, opts.usr, opts.pwd, opts.ssl)
+
+    if not opts.dev:
         wait = max(0, opts.wait)  # ignore negative wait times
         delim = '\t' if opts.tabs else ','
-        main(opts.infile, opts.outfile, opts.build, delim, opts.provider, wait)
+        main(opts.infile, db, opts.build, delim, opts.provider, wait)
+        db.close()
