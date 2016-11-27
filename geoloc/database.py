@@ -95,6 +95,7 @@ class Location(BaseModel):
 
     content = JSONField(null=True)
     provider = CharField()
+    meta_id = IntegerField(null=True, index=True)
     created = DateTimeField(default=datetime.now)
 
     class Meta:

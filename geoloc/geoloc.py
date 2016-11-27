@@ -33,7 +33,7 @@ class QueryLimitError(Exception):
     pass
 
 
-def save(loc):
+def save(loc, meta_id=None):
     """Add record to database."""
     Location.insert(
         location=loc.location,
@@ -51,7 +51,8 @@ def save(loc):
         postal=loc.postal,
         bbox=loc.bbox,
         content=loc.content,
-        provider=loc.provider
+        provider=loc.provider,
+        meta_id=meta_id
     ).execute()
 
 
@@ -98,7 +99,8 @@ def check_if_exists(location):
         return False
 
 
-def main(infile, db, build=False, delim=',', provider='google', wait=0.1):
+def main(infile, db, meta=None, build=False, delim=',', provider='google',
+         wait=0.1):
     """Run the geocoder."""
 
     fh = open(infile, 'r')
@@ -131,7 +133,11 @@ def main(infile, db, build=False, delim=',', provider='google', wait=0.1):
             if build and state is not None and loc.state != state:
                 # search did not return result in correct state
                 logging.warning('State for {0} != {1}'.format(location, state))
-            save(loc)
+
+            save(
+                loc,
+                int(search[meta]) if meta is not None else None
+            )
         time.sleep(wait)
 
 
@@ -156,6 +162,7 @@ if __name__ == "__main__":
     argp.add_argument('infile', help='Input source')
     argp.add_argument('dbname', nargs='?', default='locs.db',
                       help='Output database')
+    argp.add_argument('--meta', help='Input column with arbitrary location ID')
     argp.add_argument('--tbl', default='locations', help='Table name')
     argp.add_argument('-t', '--tabs', action='store_true', help='Tab delimit')
     argp.add_argument('-v', '--verbose', action='store_true', help='Log on')
@@ -183,5 +190,6 @@ if __name__ == "__main__":
     if not opts.dev:
         wait = max(0, opts.wait)  # ignore negative wait times
         delim = '\t' if opts.tabs else ','
-        main(opts.infile, db, opts.build, delim, opts.provider, wait)
+        main(opts.infile, db, opts.meta, opts.build, delim,
+             opts.provider, wait)
         db.close()
