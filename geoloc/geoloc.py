@@ -98,16 +98,20 @@ def check_if_exists(location):
         return False
 
 
-def main(infile, outfile='locs.db', delimit=',', provider='google', wait=0.1):
+def main(infile, outfile='locs.db', build=False, delim=',',
+         provider='google', wait=0.1):
     """Run the geocoder."""
     db.init(outfile)
     db.create_table(Location, safe=True)
 
     fh = open(infile, 'r')
-    rdr = csv.DictReader(fh, delimiter=delimit)
+    rdr = csv.DictReader(fh, delimiter=delim)
     for search in rdr:
-        state, place = search['state'], search['place']
-        state, location = build_search(state, place)
+        if build:
+            state, place = search['state'], search['place']
+            state, location = build_search(state, place)
+        else:
+            location = search['location'].strip()
 
         if check_if_exists(location):
             logging.debug('Already in database: {0}'.format(location))
@@ -126,7 +130,7 @@ def main(infile, outfile='locs.db', delimit=',', provider='google', wait=0.1):
             logging.error(err)
             continue
         else:
-            if state is not None and loc.state != state:
+            if build and state is not None and loc.state != state:
                 # search did not return result in correct state
                 logging.warning('State for {0} != {1}'.format(location, state))
             save(loc)
@@ -147,6 +151,8 @@ if __name__ == "__main__":
                       help='Wait (in seconds) between requests to provider')
     argp.add_argument('-p', '--provider', default='google', help='Provider')
     argp.add_argument('-d', '--dev', action='store_true', help='Development')
+    argp.add_argument('-b', '--build', action='store_true',
+                      help='Create search from state and place columns')
 
     opts = argp.parse_args()
     if opts.verbose:
@@ -161,5 +167,5 @@ if __name__ == "__main__":
         db.create_table(Location, safe=True)
     else:
         wait = max(0, opts.wait)  # ignore negative wait times
-        delimit = '\t' if opts.tabs else ','
-        main(opts.infile, opts.outfile, delimit, opts.provider, wait)
+        delim = '\t' if opts.tabs else ','
+        main(opts.infile, opts.outfile, opts.build, delim, opts.provider, wait)
