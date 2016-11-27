@@ -135,12 +135,14 @@ def main(infile, db, build=False, delim=',', provider='google', wait=0.1):
         time.sleep(wait)
 
 
-def open_database(dbname, host='127.0.0.1', user='root', pwd=None, ssl=None):
+def open_db(dbname, tbl='locations', host='127.0.0.1', user='root',
+            pwd=None, ssl=None):
     """Create connection to database."""
 
     return start_database(
         dbname,
         sqlite='.' in dbname or host is None,
+        tbl_name=tbl,
         host=host,
         user=user,
         passwd=pwd,
@@ -154,6 +156,7 @@ if __name__ == "__main__":
     argp.add_argument('infile', help='Input source')
     argp.add_argument('dbname', nargs='?', default='locs.db',
                       help='Output database')
+    argp.add_argument('--tbl', default='locations', help='Table name')
     argp.add_argument('-t', '--tabs', action='store_true', help='Tab delimit')
     argp.add_argument('-v', '--verbose', action='store_true', help='Log on')
     argp.add_argument('-w', '--wait', type=float, default=0.1,
@@ -175,7 +178,7 @@ if __name__ == "__main__":
         )
         logging.getLogger('requests').setLevel(logging.WARNING)
 
-    db = open_database(opts.dbname, opts.hst, opts.usr, opts.pwd, opts.ssl)
+    db = open_db(opts.dbname, opts.tbl, opts.hst, opts.usr, opts.pwd, opts.ssl)
 
     if not opts.dev:
         wait = max(0, opts.wait)  # ignore negative wait times
