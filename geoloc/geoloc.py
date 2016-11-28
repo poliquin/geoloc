@@ -124,7 +124,7 @@ def main(infile, db, meta=None, build=False, delim=',', provider='google',
             logging.warning('No result for {0}'.format(location))
             continue
         except QueryLimitError:
-            logging.critial('Over query limit!')
+            logging.critical('Over query limit!')
             break
         except Exception as err:
             logging.error(err)
