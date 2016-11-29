@@ -92,10 +92,17 @@ def build_search(state, place):
         return state.abbr, place + ', ' + state.abbr.lower()
 
 
-def check_if_exists(location):
+def check_if_exists(location=None, meta_id=None):
     """Check if location already exists in database."""
+
+    if location is None and meta_id is None:
+        return False
+
     try:
-        Location.select(Location.id).where(Location.location == location).get()
+        Location.select(Location.id).where(
+            ((Location.location == location) | (location is None)) &
+            ((Location.meta_id == meta_id) | (meta_id is None))
+        ).get()
         return True
     except DoesNotExist:
         return False
@@ -115,7 +122,9 @@ def main(infile, db, meta=None, build=False, delim=',', provider='google',
         else:
             location = search['location'].strip()
 
-        if check_if_exists(location):
+        meta_id = int(search[meta]) if meta is not None else None
+
+        if check_if_exists(location, meta_id):
             logging.debug('Already in database: {0}'.format(location))
             continue
 
@@ -136,10 +145,7 @@ def main(infile, db, meta=None, build=False, delim=',', provider='google',
                 # search did not return result in correct state
                 logging.warning('State for {0} != {1}'.format(location, state))
 
-            save(
-                loc,
-                int(search[meta]) if meta is not None else None
-            )
+            save(loc, meta_id)
         time.sleep(wait)
 
 
