@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+
 import csv
 import re
 import time
@@ -9,7 +11,7 @@ from collections import OrderedDict
 import geocoder
 from peewee import DoesNotExist
 from us import states
-from database import start_database, config_ssl, Location
+from .database import start_database, config_ssl, Location
 
 
 PROVIDERS = OrderedDict([  # services to use, in default priority
