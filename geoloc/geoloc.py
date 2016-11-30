@@ -65,7 +65,7 @@ def lookup(location_name, geo_service='google'):
         return loc
     elif loc.status in NO_RESULTS:
         raise NoResultError('No result from server')
-    elif loc.stats in OVER_LIMIT:
+    elif loc.status in OVER_LIMIT:
         raise QueryLimitError('Over query limit')
     else:
         raise Exception(loc.status)
