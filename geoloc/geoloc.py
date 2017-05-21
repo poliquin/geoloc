@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+import os
 import csv
 import re
 import time
@@ -152,6 +153,13 @@ def main(infile, db, meta=None, build=False, delim=',', provider='google',
 def open_db(dbname, tbl='locations', host='127.0.0.1', user='root',
             pwd=None, ssl=None):
     """Create connection to database."""
+
+    # assume password is in a dbpass.txt file if None
+    if host is not None and pwd is None:
+        if os.path.exists('dbpass.txt'):
+            logging.info('Reading database password from dbpass.txt')
+            with open('dbpass.txt', 'r') as fh:
+                pwd = fh.read().strip()
 
     return start_database(
         dbname,
