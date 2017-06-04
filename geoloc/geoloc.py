@@ -6,6 +6,7 @@ import os
 import csv
 import re
 import time
+import functools
 import logging
 from collections import OrderedDict
 
@@ -59,6 +60,7 @@ def save(loc, meta_id=None):
     ).execute()
 
 
+@functools.lru_cache(maxsize=64, typed=False)
 def lookup(location_name, geo_service='google'):
     func = PROVIDERS[geo_service]
     loc = func(location_name)
