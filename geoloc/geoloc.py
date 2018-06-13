@@ -136,6 +136,12 @@ def main(infile, db, meta=None, build=False, delim=',', provider='google',
             logging.info('Found result for {0}'.format(location))
         except NoResultError:
             logging.warning('No result for {0}'.format(location))
+            # add blank record to database to avoid searching this again
+            Location.insert(
+                location=location,
+                provider=provider,
+                meta_id=meta_id
+            ).execute()
             continue
         except QueryLimitError:
             logging.critical('Over query limit!')
