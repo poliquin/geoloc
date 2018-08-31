@@ -53,7 +53,7 @@ def start_database(dbname, sqlite=False, tbl_name=None, **kwargs):
         Location._meta.db_table = tbl_name.strip()
 
     dbproxy.initialize(db)
-    db.create_table(Location, safe=True)
+    db.create_tables([Location], safe=True)
 
     return db
 
