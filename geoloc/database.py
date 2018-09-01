@@ -50,7 +50,7 @@ def start_database(dbname, sqlite=False, tbl_name=None, **kwargs):
         db = MySQLDatabase(dbname, **kwargs)
 
     if tbl_name is not None:
-        Location._meta.db_table = tbl_name.strip()
+        Location._meta.table_name = tbl_name.strip()
 
     dbproxy.initialize(db)
     db.create_tables([Location], safe=True)
@@ -99,4 +99,4 @@ class Location(BaseModel):
     created = DateTimeField(default=datetime.now)
 
     class Meta:
-        db_table = 'locations'
+        table_name = 'locations'
