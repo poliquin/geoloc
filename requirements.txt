@@ -1,0 +1,4 @@
+geocoder==1.17.5
+peewee==3.2.2
+PyMySQL==0.8.0
+us==1.0.0
